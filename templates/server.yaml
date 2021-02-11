@@ -30,8 +30,8 @@ spec:
         - name: server
           command:
             - sh
-            - -c
-            - /config/entrypoint.sh
+            - -c 
+            - export $(xargs < {{ join " " .Values.server.envFiles }}) && /root/configs/docker/cmd.sh
           securityContext:
             {{- toYaml .Values.server.securityContext | nindent 12 }}
           image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
@@ -42,16 +42,21 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
-          {{- if .Values.server.env }}
+          {{- if or .Values.server.env .Values.server.extraEnv }}
           env:
             {{- range $key, $val := .Values.server.env }}
               - name: {{ $key | quote }}
                 value: {{ $val | quote }}
             {{- end }}
+            {{- range .Values.server.extraSecretEnvironmentVars }}
+              - name: {{ .envName }}
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .secretName }}
+                    key: {{ .secretKey }}
+            {{- end }}
           {{- end }}
           volumeMounts:
-            - name: config
-              mountPath: /config
             - name: data
               mountPath: /var/www/html
             {{- if .Values.server.extraVolumeMounts }}
@@ -71,10 +76,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: config
-          configMap:
-            name: {{ include "server.fullname" . }}
-            defaultMode: 0755
         - name: data
           emptyDir: {}
       {{- if .Values.server.extraVolumes }}

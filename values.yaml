@@ -1,5 +1,3 @@
-host: ""
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -36,26 +34,14 @@ server:
   tolerations: []
   affinity: {}
 
+  # Configuring the server is done via env variables. You can add PSONO_var_name to specify
+  # the variables listed here: https://doc.psono.com/admin/installation/install-server-ce.html#installation-with-docker
   env: {}
+  extraSecretEnvironmentVars: []
   extraVolumeMounts: []
   extraVolumes: []
 
-  extra_settings_files: []
-    # - /vault/secrets/credentials
-
-  # This is the databases part of settings.yaml, allows passwords and password files
-  databases:
-    default:
-      name: psono
-      user: psono
-      # password: 
-      # password_file: /vault/secrets/database
-      # host: 
-      # port: 
-
-  # Converted to settings.yaml. To configure this, follow the instructions here:
-  # https://doc.psono.com/admin/installation/install-server-ce.html
-  settings: {}
+  envFiles: []
 
 webclient:
   enabled: true
@@ -94,7 +80,7 @@ database:
 
   persistence:
     enabled: false
-    storageClass: ""
+    storageClass: "-"
     existingClaim: ""
     size: 10Gi
 
@@ -104,6 +90,7 @@ database:
     # POSTGRES_USER: psono
     # POSTGRES_DB: psono
 
+  extraSecretEnvironmentVars: []
   extraVolumeMounts: []
   extraVolumes: []
 
@@ -125,3 +112,6 @@ adminClient:
 
   extraVolumeMounts: []
   extraVolumes: []
+
+mail:
+  enabled: false

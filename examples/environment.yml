@@ -12,30 +12,18 @@ ingress:
     - host: psono.example.com
 
 server:
-  envFiles:
-    - /vault/secrets/credentials
-
-  podAnnotations:
-    vault.hashicorp.com/agent-inject: "true"
-    vault.hashicorp.com/role: psono-database
-    vault.hashicorp.com/agent-inject-secret-credentials: kv/data/psono/credentials,kv/data/psono/database
-    vault.hashicorp.com/agent-inject-template-credentials: |
-      {{- with secret "kv/data/psono/database" -}}
-      export PSONO_DATABASES_DEFAULT_PASSWORD={{ .Data.data.password }}
-      {{- end }}
-      {{- with secret "kv/data/psono/credentials" -}}
-      export PSONO_SECRET_KEY={{ .Data.data.secret_key }}
-      export PSONO_ACTIVATION_LINK_SECRET={{ .Data.data.activation_link }}
-      export PSONO_DB_SECRET={{ .Data.data.db_secret }}
-      export PSONO_EMAIL_SECRET_SALT={{ .Data.data.email_salt }}
-      export PSONO_PRIVATE_KEY={{ .Data.data.private_key }}
-      export PSONO_PUBLIC_KEY={{ .Data.data.public_key }}
-      {{- end -}}
-
   env:
     PSONO_DATABASES_DEFAULT_NAME: psono
     PSONO_DATABASES_DEFAULT_USER: psono
+    PSONO_DATABASES_DEFAULT_PASSWORD: test
     PSONO_DATABASES_DEFAULT_HOST: psono-database.psono.svc
+
+    PSONO_SECRET_KEY: 'SOME SUPER SECRET KEY THAT SHOULD BE RANDOM AND 32 OR MORE DIGITS LONG'
+    PSONO_ACTIVATION_LINK_SECRET: 'SOME SUPER SECRET ACTIVATION LINK SECRET THAT SHOULD BE RANDOM AND 32 OR MORE DIGITS LONG'
+    PSONO_DB_SECRET: 'SOME SUPER SECRET DB SECRET THAT SHOULD BE RANDOM AND 32 OR MORE DIGITS LONG'
+    PSONO_EMAIL_SECRET_SALT: '$2b$12$XUG.sKxC2jmkUvWQjg53.e'
+    PSONO_PRIVATE_KEY: '302650c3c82f7111c2e8ceb660d32173cdc8c3d7717f1d4f982aad5234648fcb'
+    PSONO_PUBLIC_KEY: '02da2ad857321d701d754a7e60d0a147cdbc400ff4465e1f57bc2d9fbfeddf0b'
 
     PSONO_HOST_URL: 'https://psono.example.com/server'
     PSONO_DEBUG: TRUE
@@ -47,28 +35,13 @@ server:
     PSONO_ALLOW_USER_SEARCH_BY_EMAIL: false
     PSONO_ALLOW_REGISTRATION: True
     PSONO_ENFORCE_MATCHING_USERNAME_AND_EMAIL: False
-    PSONO_ALLOWED_DOMAINS: ['tiagoposse.com']
-    PSONO_EMAIL_FROM: 'psono@tiagoposse.com'
+    PSONO_ALLOWED_DOMAINS: ['example.com']
+    PSONO_EMAIL_FROM: 'psono@example.com'
     PSONO_EMAIL_HOST: 'mail.psono.svc'
     PSONO_EMAIL_PORT: 587
     PSONO_EMAIL_USE_TLS: False
     PSONO_EMAIL_USE_SSL: False
     PSONO_EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
-
-database:
-  env:
-    POSTGRES_PASSWORD_FILE: /vault/secrets/psql-password
-    POSTGRES_USER: psono
-    POSTGRES_DB: psono
-
-  podAnnotations:
-    vault.hashicorp.com/agent-inject: "true"
-    vault.hashicorp.com/role: psono-database
-    vault.hashicorp.com/agent-inject-secret-psql-password: kv/data/psono/database
-    vault.hashicorp.com/agent-inject-template-psql-password: |
-      {{- with secret "kv/data/psono/database" -}}
-      {{ .Data.data.password }}
-      {{- end -}}
 
 webclient:
   env:
@@ -103,6 +76,12 @@ adminClient:
         "disable_download_bar": false,
         "authentication_methods": ["AUTHKEY"]
       }
+
+database:
+  env:
+    POSTGRES_PASSWORD: test
+    POSTGRES_USER: psono
+    POSTGRES_DB: psono
 
 mail:
   enabled: true

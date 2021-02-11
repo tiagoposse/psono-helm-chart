@@ -45,6 +45,13 @@ spec:
             - name: {{ $name }}
               value: {{ $value }}
             {{- end }}
+            {{- range .Values.database.extraSecretEnvironmentVars }}
+              - name: {{ .envName }}
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .secretName }}
+                    key: {{ .secretKey }}
+            {{- end -}}
           
           {{- if or .Values.database.extraVolumeMounts .Values.database.persistence.enabled }}
           volumeMounts:
@@ -80,4 +87,34 @@ spec:
         {{ toYaml .Values.database.extraVolumes | nindent 8}}
       {{- end }}
     {{- end }}
+---
+
+{{- if and .Values.database.persistence.enabled (not .Values.database.persistence.existingClaim) -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  {{- if .Values.database.persistence.annotations }}
+  annotations:
+{{ toYaml .Values.database.persistence.annotations | indent 4 }}
+  {{- end }}
+  labels:
+    {{- include "drone.labels" . | nindent 4 }}
+  name: {{ template "drone.fullname" . }}
+spec:
+  accessModes:
+{{ toYaml .Values.database.persistence.accessModes | indent 4 }}
+{{- if .Values.database.persistence.storageClass }}
+{{- if (eq "-" .Values.database.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: {{ .Values.persistentVolume.storageClass }}
+{{- end }}
+{{- end }}
+{{- if .Values.database.persistence.volumeMode }}
+  volumeMode: {{ .Values.persistentVolume.volumeMode }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.database.persistence.size }}
+{{- end -}}
 {{- end }}
