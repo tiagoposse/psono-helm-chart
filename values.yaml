@@ -1,0 +1,127 @@
+host: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+ingress:
+  enabled: false
+  annotations: []
+  hosts:
+    # Paths are based on the active modules, do not include here
+    - host: ""
+
+server:
+  enabled: true
+  replicas: 1
+  image:
+    repository: psono/psono-server
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  service:
+    type: ClusterIP
+    port: 10100
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  env: {}
+  extraVolumeMounts: []
+  extraVolumes: []
+
+  extra_settings_files: []
+    # - /vault/secrets/credentials
+
+  # This is the databases part of settings.yaml, allows passwords and password files
+  databases:
+    default:
+      name: psono
+      user: psono
+      # password: 
+      # password_file: /vault/secrets/database
+      # host: 
+      # port: 
+
+  # Converted to settings.yaml. To configure this, follow the instructions here:
+  # https://doc.psono.com/admin/installation/install-server-ce.html
+  settings: {}
+
+webclient:
+  enabled: true
+  replicas: 1
+  image:
+    repository: psono/psono-client
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  service:
+    port: 10101
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  extraVolumeMounts: []
+  extraVolumes: []
+
+database:
+  enabled: true
+  replicas: 1
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  service:
+    port: 5432
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  persistence:
+    enabled: false
+    storageClass: ""
+    existingClaim: ""
+    size: 10Gi
+
+  env: []
+    # POSTGRES_PASSWORD:
+    # POSTGRES_PASSWORD_FILE:
+    # POSTGRES_USER: psono
+    # POSTGRES_DB: psono
+
+  extraVolumeMounts: []
+  extraVolumes: []
+
+adminClient:
+  enabled: true
+  replicas: 1
+  image:
+    repository: psono/psono-admin-client
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  service:
+    port: 10102
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  extraVolumeMounts: []
+  extraVolumes: []

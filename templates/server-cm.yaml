@@ -1,0 +1,42 @@
+{{- if .Values.server.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "server.fullname" . }}
+  labels:
+    {{- include "server.labels" . | nindent 4 }}
+data:
+  entrypoint.sh: |
+    #!/bin/sh
+
+    cp /config/settings.yaml /root/.psono_server/
+    cat /config/database.yaml >> /root/.psono_server/settings.yaml
+
+    {{- if .Values.server.databases.default.password_file }}
+    echo "\n    PASSWORD: '$(cat {{ .Values.server.databases.default.password_file }})'" >> /root/.psono_server/settings.yaml
+    {{- else if not .Values.server.databases.default.password }}
+    echo "No Password for the DB has been provided"
+    exit 1
+    {{- end }}
+
+    {{- with .Values.extra_settings_files }}
+    cat {{ . }} >> /root/.psono_server/settings.yaml
+    {{- end }}
+
+    /root/configs/docker/cmd.sh
+
+  database.yaml: |
+    DATABASES:
+      default:
+        ENGINE: '{{ default "django.db.backends.postgresql_psycopg2" .Values.server.databases.default.engine }}'
+        NAME: '{{ default "psono" .Values.server.databases.default.name }}'
+        USER: '{{ default "psono" .Values.server.databases.default.user }}'
+        {{- if not .Values.server.databases.default.password_file }}
+        PASSWORD: '{{ default "psono" .Values.server.databases.default.password }}'
+        {{- end }}
+        HOST: '{{ default (printf "%s.%s.svc" (include "database.fullname" .) .Release.Namespace) .Values.server.databases.default.host }}'
+        PORT: {{ default 5432 .Values.server.databases.default.port }}
+  settings.yaml: |
+    {{- toYaml .Values.server.settings | nindent 4}}
+
+{{- end }}

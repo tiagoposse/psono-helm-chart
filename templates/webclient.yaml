@@ -1,0 +1,78 @@
+{{- if .Values.webclient.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webclient.fullname" . }}
+  labels:
+    {{- include "webclient.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "webclient.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "webclient.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "webclient.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: webclient
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -c
+            - cp /config/config.json /usr/share/nginx/html/config.json && nginx -g "daemon off;"
+          image: "{{ .Values.webclient.image.repository }}:{{ .Values.webclient.image.tag }}"
+          imagePullPolicy: {{ .Values.webclient.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.webclient.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          {{- if .Values.webclient.extraVolumeMounts }}
+            {{ toYaml .Values.webclient.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      {{- with .Values.webclient.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.webclient.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.webclient.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "webclient.fullname" . }}
+      {{- if .Values.webclient.extraVolumes }}
+        {{ toYaml .Values.webclient.extraVolumes | nindent 8}}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,23 @@
+{{- if or .Values.webclient.enabled .Values.adminClient.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "webclient.fullname" . }}
+  labels:
+    {{- include "webclient.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {
+      "backend_servers": [{
+        "title": "psono.pw",
+        "domain": "{{ .Values.host }}",
+        "url": "https://{{ .Values.host }}/server"
+      }],
+      "base_url": "https://{{ .Values.host }}/",
+      "allow_custom_server": true,
+      "allow_registration": true,
+      "allow_lost_password": true,
+      "disable_download_bar": false,
+      "authentication_methods": ["AUTHKEY"]
+    }
+{{- end }}
