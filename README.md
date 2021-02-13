@@ -24,15 +24,10 @@ A few configuration examples are provided [here](/examples):
 
 If you don't use a secret management system like Vault, we recommend using secrets. Only use the env variables example for testing, as this is highly insecure and will be deprecated in the future.
 
-## TODO
-
-For v0.2.0 (usable, stable):
-- [x] Embedded mail chart installation option
-- [x] Documentation with links to psono homepage
-- [x] Improve examples
-- [x] Move to env variables instead of settings key
+## Roadmap
 
 For v0.3.0 (tls, more error-proofed):
+- [ ] Write chart tests
 - [ ] Custom nginx config for client and admin-client
 - [ ] Fail when required configs are not provided
 - [ ] Deprecate passwords via helm values as it is just bad practices
@@ -157,3 +152,29 @@ For v0.3.0 (tls, more error-proofed):
 | database.persistence.storageClass | Storage class used by the PVC | "-" |
 | database.persistence.existingClaim | Name of an existing PVC to use. Using this will make .storageClass and .size irrelevant | "" |
 | database.persistence.size | Size for the disk used by the database | 10Gi |
+
+### Backup job configuration
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| backup.enabled | Enable or disable the psono-backup instance | true |
+| backup.schedule | Cron schedule to run the job | "00 6 * * *" |
+| backup.restartPolicy | Restart policy for the jobs | OnFailure |
+| backup.startingDeadlineSeconds | Timeout to start in seconds | 100 |
+| backup.image.repository | Docker image for the backup | psono/psono-client |
+| backup.image.tag | Tag for the docker image | latest |
+| backup.image.pullPolicy | Pull policy for the docker image | IfNotPresent |
+| backup.serviceAccount.create | Enable or disable the creation of a service account to be used by the backup | true |
+| backup.serviceAccount.name | Name of the service account to create | {{ .Release.Name }}-backup |
+| backup.serviceAccount.annotations | Annotations given to the service account | {} |
+| backup.podAnnotations | Annotations given to the pods spawned by the backup job | {} |
+| backup.podSecurityContext |  | {} |
+| backup.securityContext |  | {} |
+| backup.resources | CPU/Memory resource requests/limits for backup pods | {} |
+| backup.nodeSelector | Node labels for backup pod assignment | {} |
+| backup.affinity | Affinity for backup pod assignment | {} |
+| backup.env | Environment variables for the main container in the backup pods | {} |
+| backup.extraSecretEnvironmentVars | List of env vars loaded from secret | [] |
+| backup.tolerations | Tolerations for backup pod assignment | [] |
+| backup.extraVolumeMounts | Extra volume mounts used by the main container in the backup pods | [] |
+| backup.extraVolumes | Extra volumes to be used by the backup pods | [] |

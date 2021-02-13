@@ -1,0 +1,20 @@
+---
+kind: pipeline
+type: kubernetes
+name: Psono helm chart
+
+platform:
+  os: linux
+  arch: arm64
+
+trigger:
+  branch:
+    - main
+
+steps:
+- name: Package and push
+  image: registry.tiagoposse.com/helm-arm:3.5
+  commands:
+  - helm lint drone/
+  - helm package drone/
+  - curl -X POST --data-binary @drone-`cat Chart.yaml | grep "version:" | cut -d " " -f 2`.tgz -k https://charts.tiagoposse.com/api/charts

@@ -82,6 +82,8 @@ database:
     enabled: false
     storageClass: "-"
     existingClaim: ""
+    accessModes:
+      - ReadWriteOnce
     size: 10Gi
 
   env: []
@@ -90,6 +92,13 @@ database:
     # POSTGRES_USER: psono
     # POSTGRES_DB: psono
 
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   extraSecretEnvironmentVars: []
   extraVolumeMounts: []
   extraVolumes: []
@@ -115,3 +124,38 @@ adminClient:
 
 mail:
   enabled: false
+
+backup:
+  enabled: false
+  image:
+    repository: postgres
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  schedule: "00 6 * * *"
+  startingDeadlineSeconds: 100
+  restartPolicy: OnFailure
+
+  envFiles: []
+  env: {}
+    # BACKUP_TARGET:
+    # POSTGRES_USER:
+    # POSTGRES_DB:
+    # POSTGRES_PASSWORD:
+    # POSTGRES_HOST: 
+
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  extraSecretEnvironmentVars: []
+  extraVolumeMounts: []
+  extraVolumes: []
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""

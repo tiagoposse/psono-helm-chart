@@ -31,7 +31,9 @@ spec:
           command:
             - sh
             - -c 
-            - export $(xargs < {{ join " " .Values.server.envFiles }}) && /root/configs/docker/cmd.sh
+            - >
+              export $(xargs < {{ join " " .Values.server.envFiles }});
+              /root/configs/docker/cmd.sh
           securityContext:
             {{- toYaml .Values.server.securityContext | nindent 12 }}
           image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
@@ -42,7 +44,7 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
-          {{- if or .Values.server.env .Values.server.extraEnv }}
+          {{- if or .Values.server.env .Values.server.extraSecretEnvironmentVars }}
           env:
             {{- range $key, $val := .Values.server.env }}
               - name: {{ $key | quote }}

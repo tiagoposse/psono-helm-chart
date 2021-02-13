@@ -1,0 +1,59 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "backup.fullname" . | quote }}
+  labels:
+    {{- include "backup.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  startingDeadlineSeconds: {{ .Values.backup.startingDeadlineSeconds }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+        {{- with .Values.backup.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+        spec:
+          serviceAccountName: {{ include "backup.serviceAccountName" . }}
+          restartPolicy: {{ .Values.backup.restartPolicy }}
+          containers:
+            - name: backup
+              image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+              command:
+                - sh
+                - -c
+                - >
+                  {{- if .Values.backup.envFiles }}
+                  export $(xargs < {{ join " " .Values.backup.envFiles }});
+                  {{- end }}
+                  echo "Creating backup $BACKUP_TARGET/psono-db-$(date +"%d-%m-%Y-%H-%M").sql";
+                  mkdir -p $BACKUP_TARGET;
+                  pg_dump > $BACKUP_TARGET/psono-db-$(date +"%d-%m-%Y-%H-%M").sql;
+                  echo "FINISHED";
+              {{- if or .Values.backup.env .Values.backup.extraSecretEnvironmentVars }}
+              env:
+                {{- range $key, $val := .Values.backup.env }}
+                  - name: {{ $key | quote }}
+                    value: {{ $val | quote }}
+                {{- end }}
+                {{- range .Values.backup.extraSecretEnvironmentVars }}
+                  - name: {{ .envName }}
+                    valueFrom:
+                      secretKeyRef:
+                        name: {{ .secretName }}
+                        key: {{ .secretKey }}
+                {{- end }}
+              {{- end }}
+
+              {{- if .Values.backup.extraVolumeMounts }}
+              volumeMounts:
+                {{- toYaml .Values.backup.extraVolumeMounts | nindent 14 }}
+              {{- end }}
+          {{- if or .Values.backup.extraVolumes }}
+          volumes:
+            {{- toYaml .Values.backup.extraVolumes | nindent 12 }}
+          {{- end }}
+{{- end }}

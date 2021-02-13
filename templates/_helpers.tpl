@@ -144,6 +144,13 @@ app.kubernetes.io/layer: database
 {{- end }}
 
 {{/*
+database persistence claim name
+*/}}
+{{- define "database.persistence.claim" -}}
+{{- default (include "database.fullname" .) .Values.database.persistence.existingClaim }}
+{{- end }}
+
+{{/*
 Create the name of the service account for the database to use
 */}}
 {{- define "database.serviceAccountName" -}}
@@ -186,5 +193,31 @@ Create the name of the service account for the admin client to use
 {{- default (include "adminClient.fullname" .) .Values.adminClient.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.adminClient.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Backup name
+*/}}
+{{- define "backup.fullname" -}}
+{{- printf "%s-backup" (include "psono.fullname" .) }}
+{{- end }}
+
+{{/*
+backup labels
+*/}}
+{{- define "backup.labels" -}}
+{{ include "psono.labels" . }}
+app.kubernetes.io/layer: admin
+{{- end }}
+
+{{/*
+Create the name of the service account for the admin client to use
+*/}}
+{{- define "backup.serviceAccountName" -}}
+{{- if .Values.backup.serviceAccount.create }}
+{{- default (include "backup.fullname" .) .Values.backup.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.backup.serviceAccount.name }}
 {{- end }}
 {{- end }}
