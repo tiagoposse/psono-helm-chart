@@ -9,6 +9,23 @@ ingress:
     # Paths are based on the active modules, do not include here
     - host: ""
 
+# Set options to Generate a Secret on first install
+# It will only run if you install the chart for the first time!
+# The following Secrets will be created
+# PSONO_SECRET_KEY
+# PSONO_ACTIVATION_LINK_SECRET
+# PSONO_DB_SECRET
+# PSONO_EMAIL_SECRET_SALT
+# PSONO_PRIVATE_KEY
+# PSONO_PUBLIC_KEY
+secrets:
+  # Set to false if you have your own secrets.
+  # If you have predefined values, you need to mount them in the sections below
+  # or define them in the env section
+  create: true
+  # Set the Name of the generated secrets
+  name: "psono-deploy-secrets"
+
 server:
   enabled: true
   replicas: 1
@@ -86,7 +103,8 @@ database:
       - ReadWriteOnce
     size: 10Gi
 
-  env: []
+  env:
+    []
     # POSTGRES_PASSWORD:
     # POSTGRES_PASSWORD_FILE:
     # POSTGRES_USER: psono
@@ -137,12 +155,13 @@ backup:
   restartPolicy: OnFailure
 
   envFiles: []
-  env: {}
+  env:
+    {}
     # BACKUP_TARGET:
     # POSTGRES_USER:
     # POSTGRES_DB:
     # POSTGRES_PASSWORD:
-    # POSTGRES_HOST: 
+    # POSTGRES_HOST:
 
   podAnnotations: {}
   podSecurityContext: {}
