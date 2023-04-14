@@ -1,0 +1,57 @@
+# TODO: adjust the prefix values to match the actual deployments
+# See https://doc.psono.com/admin/installation-old/install-reverse-proxy.html#preamble
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/tls-acme: "true"
+    meta.helm.sh/release-name: psono
+    meta.helm.sh/release-namespace: psono-test
+  creationTimestamp: "2023-04-14T14:12:10Z"
+  generation: 4
+  labels:
+    app.kubernetes.io/instance: psono
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: psono
+    app.kubernetes.io/version: 1.1.1
+    helm.sh/chart: psono-0.2.1
+  name: psono
+  namespace: psono-test
+  resourceVersion: "298093"
+  uid: 425dcd94-e79b-4f33-91f7-db0f90d5dcd7
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: psono.debian.testlab.cloudical.in
+      http:
+        paths:
+          - backend:
+              service:
+                name: psono-server
+                port:
+                  number: 10100
+            path: /server/(.*)
+            pathType: Prefix
+          - backend:
+              service:
+                name: psono-webclient
+                port:
+                  number: 10101
+            path: /
+            pathType: Prefix
+          - backend:
+              service:
+                name: psono-server
+                port:
+                  number: 10100
+            path: /(portal.+)
+            pathType: Prefix
+  tls:
+    - hosts:
+        - psono.debian.testlab.cloudical.in
+      secretName: in.cloudical.testlab.debian.psono
+status:
+  loadBalancer:
+    ingress:
+      - ip: 10.104.40.95

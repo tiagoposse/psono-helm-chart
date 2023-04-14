@@ -51,7 +51,7 @@ spec:
             {{ end -}}
         {{- end }}
         {{- if $.Values.webclient.enabled }}
-          - path: /(.+)
+          - path: /
             {{ if semverCompare ">= 1.19.0" $kubeVersion -}}
             pathType: Prefix
             backend:
