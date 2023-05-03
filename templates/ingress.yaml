@@ -1,3 +1,5 @@
+# TODO: adjust the prefix values to match the actual deployments
+# See https://doc.psono.com/admin/installation-old/install-reverse-proxy.html#preamble
 {{- if .Values.ingress.enabled -}}
 {{ $adminSvc := (include "adminClient.fullname" .) }}
 {{ $clientSvc := (include "webclient.fullname" .) }}
@@ -36,13 +38,13 @@ spec:
       http:
         paths:
         {{- if $.Values.server.enabled }}
-          - path: /server/(.*)
+          - path: /server
             {{ if semverCompare ">= 1.19.0" $kubeVersion -}}
             pathType: Prefix
             backend:
               service:
                 name: {{ $serverSvc }}
-                port: 
+                port:
                   number: {{ $.Values.server.service.port }}
             {{ else -}}
             backend:
@@ -57,7 +59,7 @@ spec:
             backend:
               service:
                 name: {{ $clientSvc }}
-                port: 
+                port:
                   number: {{ $.Values.webclient.service.port }}
             {{ else -}}
             backend:
@@ -66,14 +68,14 @@ spec:
             {{ end -}}
         {{- end }}
         {{- if $.Values.adminClient.enabled }}
-          - path: /(portal.+)
+          - path: /portal
             {{ if semverCompare ">= 1.19.0" $kubeVersion -}}
             pathType: Prefix
             backend:
               service:
-                name: {{ $serverSvc }}
-                port: 
-                  number: {{ $.Values.server.service.port }}
+                name: {{ $adminSvc }}
+                port:
+                  number: {{ $.Values.adminClient.service.port }}
             {{ else -}}
             backend:
               serviceName: {{ $adminSvc }}
