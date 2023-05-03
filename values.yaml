@@ -2,6 +2,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# -- ingress Config
 ingress:
   enabled: false
   annotations: []
@@ -9,6 +10,7 @@ ingress:
     # Paths are based on the active modules, do not include here
     - host: ""
 
+# -- Secret Creation Config
 # Set options to Generate a Secret on first install
 # It will only run if you install the chart for the first time!
 # The following Secrets will be created
@@ -26,6 +28,18 @@ secrets:
   # Set the Name of the generated secrets
   name: "psono-deploy-secrets"
 
+# -- Database credentials from Secret
+databaseSecret:
+  # -- enables or disables the secret to be used
+  enabled: false
+  # -- secret name
+  name: "psono-postgres-secret"
+  # -- Username Key Name
+  usernameKey: "username"
+  # -- Password Key Name
+  passwordKey: "password"
+
+# -- PSONO Server Configuration
 server:
   enabled: true
   replicas: 1
@@ -60,6 +74,7 @@ server:
 
   envFiles: []
 
+# -- PSONO Web Client Config
 webclient:
   enabled: true
   replicas: 1
@@ -79,6 +94,30 @@ webclient:
   extraVolumeMounts: []
   extraVolumes: []
 
+# -- PSONO Admin Client configuration
+adminClient:
+  enabled: true
+  replicas: 1
+  image:
+    repository: psono/psono-admin-client
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  # -- Admin Client Service Port
+  service:
+    port: 10102
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  extraVolumeMounts: []
+  extraVolumes: []
+
+# -- Bundled Postgresql config
+## Enables or disables the bundled Postgresql Database
+## If you are using an external Database disable the component
 database:
   enabled: true
   replicas: 1
@@ -121,28 +160,12 @@ database:
   extraVolumeMounts: []
   extraVolumes: []
 
-adminClient:
-  enabled: true
-  replicas: 1
-  image:
-    repository: psono/psono-admin-client
-    pullPolicy: IfNotPresent
-    tag: latest
-
-  service:
-    port: 10102
-
-  serviceAccount:
-    create: true
-    annotations: {}
-    name: ""
-
-  extraVolumeMounts: []
-  extraVolumes: []
-
+# Enables the mail subchart, see https://github.com/bokysan/docker-postfix/
+# on more info on how to configure it
 mail:
-  enabled: false
+  enabled: true
 
+# -- Configures the CronJob to backup the Postgresql and extra Mounts
 backup:
   enabled: false
   image:

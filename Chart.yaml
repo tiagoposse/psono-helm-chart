@@ -20,10 +20,10 @@ version: 0.2.1
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
-appVersion: 1.1.1
+appVersion: 0.0.0
 
 dependencies:
   - name: mail
-    version: 2.2.2
+    version: 3.6.1
     repository: https://bokysan.github.io/docker-postfix/
     condition: mail.enabled
