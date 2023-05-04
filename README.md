@@ -13,6 +13,22 @@ It supports independent installation of the following components:
 
 We highly recommend going through the install docs of psono-server to understand what secrets you need to generate and how to.
 
+**You may skip the secret generation if you use the function provided by the helm chart:**
+
+```yaml
+# -- Secret Creation Config
+# Set options to Generate a Secret on first install
+# It will only run if you install the chart for the first time!
+secrets:
+  # Set to false if you have your own secrets.
+  # If you have predefined values, you need to mount them in the sections below
+  # or define them in the env section
+  create: true
+  # Set the Name of the generated secrets
+  name: "psono-deploy-secrets"
+```
+
+
 Psono requires a mail server. If you don't want to deal with installing one, you can use the default subchart provided here by using --set=mail.enabled=true. This will deploy [bokysan/mail](https://github.com/bokysan/docker-postfix).
 
 ## Available examples
@@ -30,7 +46,7 @@ For v0.3.0 (tls, more error-proofed):
 - [ ] Write chart tests
 - [ ] Custom nginx config for client and admin-client
 - [ ] Fail when required configs are not provided
-- [ ] Deprecate passwords via helm values as it is just bad practices
+- [x] Deprecate passwords via helm values as it is just bad practices
 
 ## Configuration
 
@@ -45,6 +61,19 @@ For v0.3.0 (tls, more error-proofed):
 | ingress.hosts | List of hosts for the ingress | [] |
 | ingress.hosts[].host | Host address | |
 | mail.enabled | Enable or disable the deployment of a subchart for sending emails | false |
+
+### Secret Configurations
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| secrets.create | Enables or disable the creation of PSONO Secrets for the first install, also use this if you have an external or already existing secret, or if you are reinstalling an existing instance. | true |
+| secrets.name | Ther name of the secret to be used/created | psono-deploy-secrets |
+||||
+| databaseSecret.enabled | Enables or disable usage of passwords from secret for the Database | false |
+| databaseSecret.name | The Name of the Database Secret | psono-postgres-secret |
+| databaseSecret.usernameKey | The Key Name inside the secret for the username | username |
+| databaseSecret.passwordKey | The Key Name inside the secret for the password | password |
+
 
 ### Server configuration
 
