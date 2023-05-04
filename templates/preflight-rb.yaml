@@ -1,0 +1,17 @@
+{{- if .Values.secrets.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "psono.fullname" . }}-rb
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: "hook-succeeded, hook-failed"
+subjects:
+- kind: ServiceAccount
+  name: {{ include "psono.fullname" . }}-sa
+roleRef:
+  kind: Role
+  name: {{ include "psono.fullname" . }}-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end -}}

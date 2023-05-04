@@ -1,0 +1,26 @@
+{{- if .Values.secrets.create -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "psono.fullname" . }}-secret-creator
+  labels:
+    {{- include "psono.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "1"
+    helm.sh/hook-delete-policy: "hook-succeeded"
+spec:
+  template:
+    spec:
+      serviceAccountName: "{{ include "psono.fullname" . }}-sa"
+      automountServiceAccountToken: true
+      containers:
+        - name: secret-creator
+          image: harbor.cloudical.net/cci-tools/psono-helm-secret-helper:latest
+          env:
+            - name: RELEASE_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: SECRET_NAME
+              value: {{ .Values.secrets.name }}
+      restartPolicy: Never
+{{- end -}}

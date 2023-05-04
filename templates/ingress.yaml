@@ -1,8 +1,13 @@
+# TODO: adjust the prefix values to match the actual deployments
+# See https://doc.psono.com/admin/installation-old/install-reverse-proxy.html#preamble
 {{- if .Values.ingress.enabled -}}
 {{ $adminSvc := (include "adminClient.fullname" .) }}
 {{ $clientSvc := (include "webclient.fullname" .) }}
 {{ $serverSvc := (include "server.fullname" .) }}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{ $kubeVersion := .Capabilities.KubeVersion.Version }}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -33,22 +38,49 @@ spec:
       http:
         paths:
         {{- if $.Values.server.enabled }}
-          - path: /server/(.*)
+          - path: /server
+            {{ if semverCompare ">= 1.19.0" $kubeVersion -}}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $serverSvc }}
+                port:
+                  number: {{ $.Values.server.service.port }}
+            {{ else -}}
             backend:
               serviceName: {{ $serverSvc }}
               servicePort: {{ $.Values.server.service.port }}
+            {{ end -}}
         {{- end }}
         {{- if $.Values.webclient.enabled }}
-          - path: /(.+)
+          - path: /
+            {{ if semverCompare ">= 1.19.0" $kubeVersion -}}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $clientSvc }}
+                port:
+                  number: {{ $.Values.webclient.service.port }}
+            {{ else -}}
             backend:
               serviceName: {{ $clientSvc }}
               servicePort: {{ $.Values.webclient.service.port }}
+            {{ end -}}
         {{- end }}
         {{- if $.Values.adminClient.enabled }}
-          - path: /(portal.+)
+          - path: /portal
+            {{ if semverCompare ">= 1.19.0" $kubeVersion -}}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $adminSvc }}
+                port:
+                  number: {{ $.Values.adminClient.service.port }}
+            {{ else -}}
             backend:
               serviceName: {{ $adminSvc }}
               servicePort: {{ $.Values.adminClient.service.port }}
+            {{ end -}}
         {{- end }}
     {{- end }}
   {{- end }}

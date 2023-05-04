@@ -1,0 +1,14 @@
+{{- if .Values.secrets.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "psono.fullname" . }}-role
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: "hook-succeeded, hook-failed"
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create"]
+{{- end -}}

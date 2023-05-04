@@ -32,7 +32,10 @@ spec:
             - sh
             - -c 
             - >
+              {{- if .Values.server.envFiles }}
               export $(xargs < {{ join " " .Values.server.envFiles }});
+              {{- end }}
+              env;
               /root/configs/docker/cmd.sh
           securityContext:
             {{- toYaml .Values.server.securityContext | nindent 12 }}
@@ -44,12 +47,26 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
-          {{- if or .Values.server.env .Values.server.extraSecretEnvironmentVars }}
+          {{- if or .Values.server.env .Values.server.extraSecretEnvironmentVars .Values.databaseSecret.enabled }}
           env:
+              - name: PSONO_URL_PREFIX
+                value: "server/"
             {{- range $key, $val := .Values.server.env }}
               - name: {{ $key | quote }}
                 value: {{ $val | quote }}
             {{- end }}
+            {{ if .Values.databaseSecret.enabled }}
+              - name: PSONO_DATABASES_DEFAULT_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.databaseSecret.name }}
+                    key: {{ .Values.databaseSecret.usernameKey }}
+              - name: PSONO_DATABASES_DEFAULT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.databaseSecret.name }}
+                    key: {{ .Values.databaseSecret.passwordKey }}
+            {{ end }}
             {{- range .Values.server.extraSecretEnvironmentVars }}
               - name: {{ .envName }}
                 valueFrom:
@@ -57,6 +74,11 @@ spec:
                     name: {{ .secretName }}
                     key: {{ .secretKey }}
             {{- end }}
+          {{- end }}
+          {{- if .Values.secrets.create }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secrets.name }}
           {{- end }}
           volumeMounts:
             - name: data
