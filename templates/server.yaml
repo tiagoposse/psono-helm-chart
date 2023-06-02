@@ -36,7 +36,7 @@ spec:
               export $(xargs < {{ join " " .Values.server.envFiles }});
               {{- end }}
               env;
-              /root/configs/docker/cmd.sh
+              sh /root/configs/docker/cmd.sh
           securityContext:
             {{- toYaml .Values.server.securityContext | nindent 12 }}
           image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"

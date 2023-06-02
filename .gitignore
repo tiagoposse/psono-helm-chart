@@ -1,3 +1,4 @@
 charts/
 values.yaml.*
 values.*.yaml
+.vscode
