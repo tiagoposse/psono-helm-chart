@@ -86,7 +86,12 @@ spec:
             {{- if .Values.server.extraVolumeMounts }}
               {{ toYaml .Values.server.extraVolumeMounts | nindent 12 }}
             {{- end }}
-
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 10
       {{- with .Values.server.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
