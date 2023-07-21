@@ -1,3 +1,6 @@
+# v0.2.3
+- Fixed startup bug of PSONO Server
+
 # v0.2.2
 - Add read credentials from secrets for database and the PSONO Server itself
 - Add a job that creates all Secret values for the PSONO Server on first install
