@@ -3,11 +3,10 @@
 Unofficial helm chart for the [Psono password manager](https://psono.com).
 
 It supports independent installation of the following components:
-- [psono-server](https://gitlab.com/psono/psono-server) ([install docs](https://doc.psono.com/admin/installation/install-server-ce.html#installation-with-docker))
-- [psono-client](https://gitlab.com/psono/psono-client) ([install docs](https://doc.psono.com/admin/installation/install-webclient.html#installation-with-docker))
-- [psono-admin-client](https://gitlab.com/psono/psono-admin-client) ([docs](https://doc.psono.com/admin/installation/install-admin-webclient.html#installation-with-docker))
+- [psono-server](https://gitlab.com/psono/psono-server) ([install docs](https://doc.psono.com/admin/installation-old/install-server-ce.html#installation-with-docker))
+- [psono-client](https://gitlab.com/psono/psono-client) ([install docs](https://doc.psono.com/admin/installation-old/install-webclient.html#installation-with-docker))
+- [psono-admin-client](https://gitlab.com/psono/psono-admin-client) ([install docs](https://doc.psono.com/admin/installation/install-admin-webclient.html#installation-with-docker))
 - psono-database (custom postgresql pod)
-
 
 ## Notes
 
