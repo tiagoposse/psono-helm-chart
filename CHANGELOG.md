@@ -1,3 +1,8 @@
+# v0.2.4
+- If a secret is named in secrets, values will be used as env-variables
+- Database variables will be added to PSONO Server and PSONO AdminClient
+- updated subchart bokysan/mail to 3.6.1
+
 # v0.2.3
 - Fixed startup bug of PSONO Server
 

@@ -22,10 +22,10 @@ ingress:
 # PSONO_PUBLIC_KEY
 secrets:
   # Set to false if you have your own secrets.
-  # If you have predefined values, you need to mount them in the sections below
-  # or define them in the env section
+  # If you have predefined values, you can mount them in the sections below
+  # or define them in the env section or provide the name of the secret here.
   create: true
-  # Set the Name of the generated secrets
+  # Set the Name of the generated secrets.
   name: "psono-deploy-secrets"
 
 # -- Database credentials from Secret
