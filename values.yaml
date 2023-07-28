@@ -5,6 +5,7 @@ fullnameOverride: ""
 # -- ingress Config
 ingress:
   enabled: false
+  class: ""
   annotations: []
   hosts:
     # Paths are based on the active modules, do not include here
