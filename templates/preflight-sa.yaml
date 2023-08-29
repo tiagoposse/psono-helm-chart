@@ -1,0 +1,10 @@
+{{- if .Values.secrets.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "{{ include "psono.fullname" . }}-sa"
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: "hook-succeeded, hook-failed"
+{{- end -}}

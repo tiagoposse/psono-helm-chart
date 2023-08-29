@@ -2,13 +2,45 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# -- ingress Config
 ingress:
   enabled: false
+  class: ""
   annotations: []
   hosts:
     # Paths are based on the active modules, do not include here
     - host: ""
 
+# -- Secret Creation Config
+# Set options to Generate a Secret on first install
+# It will only run if you install the chart for the first time!
+# The following Secrets will be created
+# PSONO_SECRET_KEY
+# PSONO_ACTIVATION_LINK_SECRET
+# PSONO_DB_SECRET
+# PSONO_EMAIL_SECRET_SALT
+# PSONO_PRIVATE_KEY
+# PSONO_PUBLIC_KEY
+secrets:
+  # Set to false if you have your own secrets.
+  # If you have predefined values, you can mount them in the sections below
+  # or define them in the env section or provide the name of the secret here.
+  create: true
+  # Set the Name of the generated secrets.
+  name: "psono-deploy-secrets"
+
+# -- Database credentials from Secret
+databaseSecret:
+  # -- enables or disables the secret to be used
+  enabled: false
+  # -- secret name
+  name: "psono-postgres-secret"
+  # -- Username Key Name
+  usernameKey: "username"
+  # -- Password Key Name
+  passwordKey: "password"
+
+# -- PSONO Server Configuration
 server:
   enabled: true
   replicas: 1
@@ -43,6 +75,7 @@ server:
 
   envFiles: []
 
+# -- PSONO Web Client Config
 webclient:
   enabled: true
   replicas: 1
@@ -62,6 +95,30 @@ webclient:
   extraVolumeMounts: []
   extraVolumes: []
 
+# -- PSONO Admin Client configuration
+adminClient:
+  enabled: true
+  replicas: 1
+  image:
+    repository: psono/psono-admin-client
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  # -- Admin Client Service Port
+  service:
+    port: 10102
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  extraVolumeMounts: []
+  extraVolumes: []
+
+# -- Bundled Postgresql config
+## Enables or disables the bundled Postgresql Database
+## If you are using an external Database disable the component
 database:
   enabled: true
   replicas: 1
@@ -86,7 +143,8 @@ database:
       - ReadWriteOnce
     size: 10Gi
 
-  env: []
+  env:
+    []
     # POSTGRES_PASSWORD:
     # POSTGRES_PASSWORD_FILE:
     # POSTGRES_USER: psono
@@ -103,28 +161,12 @@ database:
   extraVolumeMounts: []
   extraVolumes: []
 
-adminClient:
-  enabled: true
-  replicas: 1
-  image:
-    repository: psono/psono-admin-client
-    pullPolicy: IfNotPresent
-    tag: latest
-
-  service:
-    port: 10102
-
-  serviceAccount:
-    create: true
-    annotations: {}
-    name: ""
-
-  extraVolumeMounts: []
-  extraVolumes: []
-
+# Enables the mail subchart, see https://github.com/bokysan/docker-postfix/
+# on more info on how to configure it
 mail:
-  enabled: false
+  enabled: true
 
+# -- Configures the CronJob to backup the Postgresql and extra Mounts
 backup:
   enabled: false
   image:
@@ -137,12 +179,13 @@ backup:
   restartPolicy: OnFailure
 
   envFiles: []
-  env: {}
+  env:
+    {}
     # BACKUP_TARGET:
     # POSTGRES_USER:
     # POSTGRES_DB:
     # POSTGRES_PASSWORD:
-    # POSTGRES_HOST: 
+    # POSTGRES_HOST:
 
   podAnnotations: {}
   podSecurityContext: {}

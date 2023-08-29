@@ -1,4 +1,4 @@
-{{- if .Values.adminClient.enabled }}
+{{- if .Values.adminClient.enabled }} 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -49,6 +49,25 @@ spec:
             {{- range $key, $val := .Values.adminClient.env }}
               - name: {{ $key | quote }}
                 value: {{ $val | quote }}
+            {{- end }}
+            {{ if .Values.databaseSecret.enabled }}
+              - name: PSONO_DATABASES_DEFAULT_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.databaseSecret.name }}
+                    key: {{ .Values.databaseSecret.usernameKey }}
+              - name: PSONO_DATABASES_DEFAULT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.databaseSecret.name }}
+                    key: {{ .Values.databaseSecret.passwordKey }}
+            {{ end }}
+            {{- range .Values.server.extraSecretEnvironmentVars }}
+              - name: {{ .envName }}
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .secretName }}
+                    key: {{ .secretKey }}
             {{- end }}
           {{- end }}
           resources:

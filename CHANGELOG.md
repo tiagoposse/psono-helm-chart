@@ -1,3 +1,17 @@
+# v0.2.4
+- If a secret is named in secrets, values will be used as env-variables
+- Database variables will be added to PSONO Server and PSONO AdminClient
+- updated subchart bokysan/mail to 3.6.1
+
+# v0.2.3
+- Fixed startup bug of PSONO Server
+
+# v0.2.2
+- Add read credentials from secrets for database and the PSONO Server itself
+- Add a job that creates all Secret values for the PSONO Server on first install
+
+# v0.2.1
+- Update components to new kubernetes to make them rollout again
 # v0.2.0
 
 - Install bokysan/mail along with this chart when --set=mail=true. Allows for an easier setup of a mail server to serve register and recovery emails.

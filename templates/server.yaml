@@ -30,10 +30,12 @@ spec:
         - name: server
           command:
             - sh
-            - -c 
+            - -c
             - >
+              {{- if .Values.server.envFiles }}
               export $(xargs < {{ join " " .Values.server.envFiles }});
-              /root/configs/docker/cmd.sh
+              {{- end }}
+              sh /root/configs/docker/cmd.sh
           securityContext:
             {{- toYaml .Values.server.securityContext | nindent 12 }}
           image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
@@ -44,12 +46,26 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
-          {{- if or .Values.server.env .Values.server.extraSecretEnvironmentVars }}
+          {{- if or .Values.server.env .Values.server.extraSecretEnvironmentVars .Values.databaseSecret.enabled }}
           env:
+              - name: PSONO_URL_PREFIX
+                value: "server/"
             {{- range $key, $val := .Values.server.env }}
               - name: {{ $key | quote }}
                 value: {{ $val | quote }}
             {{- end }}
+            {{ if .Values.databaseSecret.enabled }}
+              - name: PSONO_DATABASES_DEFAULT_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.databaseSecret.name }}
+                    key: {{ .Values.databaseSecret.usernameKey }}
+              - name: PSONO_DATABASES_DEFAULT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.databaseSecret.name }}
+                    key: {{ .Values.databaseSecret.passwordKey }}
+            {{ end }}
             {{- range .Values.server.extraSecretEnvironmentVars }}
               - name: {{ .envName }}
                 valueFrom:
@@ -58,13 +74,17 @@ spec:
                     key: {{ .secretKey }}
             {{- end }}
           {{- end }}
+          {{- if .Values.secrets.name}}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secrets.name }}
+          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/www/html
             {{- if .Values.server.extraVolumeMounts }}
               {{ toYaml .Values.server.extraVolumeMounts | nindent 12 }}
             {{- end }}
-
       {{- with .Values.server.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
