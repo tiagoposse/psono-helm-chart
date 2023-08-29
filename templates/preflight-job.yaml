@@ -15,8 +15,8 @@ spec:
       serviceAccountName: "{{ include "psono.fullname" . }}-sa"
       automountServiceAccountToken: true
       containers:
-        - name: secret-creator
-          image: harbor.cloudical.net/cci-tools/psono-helm-secret-helper:latest
+        - name: "secret-creator"
+          image: "harbor.cloudical.net/cci-tools/psono-helm-secret-helper:6c11aa16"
           env:
             - name: RELEASE_NAMESPACE
               value: {{ .Release.Namespace }}
